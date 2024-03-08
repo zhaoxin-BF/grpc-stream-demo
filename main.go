@@ -63,8 +63,10 @@ func (services *StreamServices) UploadFile(resp proto.StreamService_UploadFileSe
 
 func (services *StreamServices) SumData(resp proto.StreamService_SumDataServer) error {
 	i := 0
+	sum := 0
 	for {
-		err := resp.Send(&proto.SumDataResponse{Result: int32(i)})
+		//time.Sleep(1 * time.Second)
+		err := resp.Send(&proto.SumDataResponse{Result: int32(sum)})
 		if err != nil {
 			return err
 		}
@@ -72,7 +74,8 @@ func (services *StreamServices) SumData(resp proto.StreamService_SumDataServer) 
 		if err == io.EOF {
 			return nil
 		}
-		log.Printf("res:%d,i:%d,sum:%d\r\n", res.Number, i, int32(i)+res.Number)
+		sum += int(res.Number)
+		log.Printf("res:%d, step:%d,sum:%d\r\n", res.Number, i, sum)
 		i++
 	}
 	return nil

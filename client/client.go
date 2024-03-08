@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 var streamClient proto.StreamServiceClient
@@ -97,6 +98,8 @@ func sumData(ctx *gin.Context) {
 			return
 		}
 		log.Printf("res number:%d", res.Result)
+		ctx.JSON(http.StatusOK, gin.H{"result": res})
+		time.Sleep(2 * time.Second)
 	}
 	stream.CloseSend()
 	return
