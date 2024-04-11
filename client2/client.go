@@ -24,7 +24,7 @@ func main() {
 	r.GET("/testOrderList", orderList)
 	r.GET("/testUploadImage", uploadImage)
 	r.GET("/testSumData", sumData)
-	r.Run(":8080")
+	r.Run(":8081")
 
 }
 func init() {
@@ -87,6 +87,7 @@ func uploadImage(ctx *gin.Context) {
 
 func sumData(ctx *gin.Context) {
 	ctxx := SetDeviceIdIntoCtx(context.Background())
+	fmt.Println("-----------------: ", ctxx.Value("x-everai-device-id"))
 	for {
 		stream, err := streamClient.SumData(ctxx)
 		if err != nil {
@@ -119,10 +120,19 @@ func sumData(ctx *gin.Context) {
 }
 
 func SetDeviceIdIntoCtx(ctx context.Context) context.Context {
-	deviceId := "80808080"
-	md := metadata.New(map[string]string{
-		DeviceId: deviceId,
+	deviceID := "80818081"
+
+	// 创建新的入站上下文，并设置设备ID元数据
+	incomingMD := metadata.New(map[string]string{
+		DeviceId: deviceID,
 	})
-	ctx = metadata.NewIncomingContext(ctx, md)
-	return metadata.NewOutgoingContext(ctx, md)
+	ctx = metadata.NewIncomingContext(ctx, incomingMD)
+
+	// 创建新的出站上下文，并设置设备ID元数据
+	outgoingMD := metadata.New(map[string]string{
+		DeviceId: deviceID,
+	})
+	ctx = metadata.NewOutgoingContext(ctx, outgoingMD)
+
+	return ctx
 }

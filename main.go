@@ -4,6 +4,7 @@ import (
 	"fmt"
 	proto "github.com/zhaoxin-BF/proto-apis/golang/stream/v1"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"io"
 	"log"
 	"net"
@@ -27,7 +28,7 @@ func main() {
 }
 
 func (services *StreamServices) OrderList(in *proto.OrderSearchParams, resp proto.StreamService_OrderListServer) error {
-	for i := 0; i <= 10; i++ {
+	for i := 0; i <= 1000; i++ {
 		order := proto.Order{
 			Id:      int32(i),
 			OrderSn: time.Now().Format("20060102150405") + "order_sn",
@@ -37,8 +38,10 @@ func (services *StreamServices) OrderList(in *proto.OrderSearchParams, resp prot
 			Order: &order,
 		})
 		if err != nil {
+			fmt.Println("err send msg~")
 			return err
 		}
+		time.Sleep(time.Second)
 	}
 	return nil
 }
@@ -62,21 +65,28 @@ func (services *StreamServices) UploadFile(resp proto.StreamService_UploadFileSe
 }
 
 func (services *StreamServices) SumData(resp proto.StreamService_SumDataServer) error {
-	i := 0
-	sum := 0
-	for {
-		//time.Sleep(1 * time.Second)
-		err := resp.Send(&proto.SumDataResponse{Result: int32(sum)})
-		if err != nil {
-			return err
+	md, ok := metadata.FromIncomingContext(resp.Context())
+	if ok {
+		// 从元数据中获取设备ID
+		deviceID := md.Get("x-everai-device-id")
+		if len(deviceID) > 0 {
+			fmt.Println("Device ID:", deviceID[0])
 		}
+	}
+	for {
+		//time.Sleep(2 * time.Second)
+		err := resp.Send(&proto.SumDataResponse{Result: 1})
+		if err != nil {
+		}
+		//time.Sleep(1 * time.Second)
+
 		res, err := resp.Recv()
 		if err == io.EOF {
+			continue
+		}
+		if err != nil {
 			return nil
 		}
-		sum += int(res.Number)
-		log.Printf("res:%d, step:%d,sum:%d\r\n", res.Number, i, sum)
-		i++
+		fmt.Printf("%+v\n", res)
 	}
-	return nil
 }
