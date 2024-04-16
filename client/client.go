@@ -35,6 +35,16 @@ func init() {
 	streamClient = proto.NewStreamServiceClient(connect)
 }
 
+func GetConnection() {
+	connect, err := grpc.Dial("https://everai.expvent.com.cn:1112", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println("success : ", connect)
+	streamClient = proto.NewStreamServiceClient(connect)
+
+}
+
 func orderList(ctx *gin.Context) {
 	for {
 		stream, err := streamClient.OrderList(context.Background(), &proto.OrderSearchParams{})

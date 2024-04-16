@@ -9,6 +9,7 @@ require (
 )
 
 require (
+	github.com/antage/eventsource v0.0.0-20220422142129-c4aae935d5bd // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/envoyproxy/protoc-gen-validate v0.10.1 // indirect
